@@ -58,6 +58,8 @@ class FourChanHtmlParser(HTMLParser):
         super().__init__(convert_charrefs=True)
         self._step = 0
         self.imgCount = 0
+        self.currentURL = ""
+        self.currentNAME = ""
 
     def error(self, message):
         pass
@@ -74,18 +76,30 @@ class FourChanHtmlParser(HTMLParser):
                 for attr in attrs:
                     if attr[0] == 'href':
                         print("     attr:", attr)
-                        self._step = 2
+                        self.currentURL = attr[1]
+                        if self._step != 5:
+                            self._step = 2
                     if attr[0] == 'title':
                         # bypass the data part, title contains full name
-                        self._step = 0
+                        self._step = 5
+                        self.currentNAME = attr[1]
                         print('lul', attr)
                         break
 
     def handle_data(self, data):
         if self._step == 2:
             print("Data     :", data)
-            self._step = 0
+            self.currentNAME = data
+            print("URL:", self.currentURL[2:])
+            download("http://"+self.currentURL[2:], self.currentNAME)
             self.imgCount = self.imgCount + 1
+            self._step = 0
+        if self._step == 5:
+            # Data bypasse, URL OK and NAME OK
+            print("URL:", self.currentURL[2:])
+            download("http://"+self.currentURL[2:], self.currentNAME)
+            self.imgCount = self.imgCount + 1
+            self._step = 0
 
 
 parser = FourChanHtmlParser()

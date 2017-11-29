@@ -66,5 +66,8 @@ fabric.properties
 # Sonarlint plugin
 .idea/sonarlint
 
+# Nouveau dossier à enlever
+venv/
+
 # End of https://www.gitignore.io/api/pycharm
 
