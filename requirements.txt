@@ -4,3 +4,4 @@ chardet
 idna
 urllib3
 wheel
+pyinstaller
