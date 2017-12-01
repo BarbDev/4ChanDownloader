@@ -1,3 +1,7 @@
 request
-re
-html.parser
+certifi
+chardet
+idna
+urllib3
+wheel
+pyinstaller
