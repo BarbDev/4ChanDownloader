@@ -3,8 +3,7 @@ python:
 - 3.6
 install:
 - pip install -r requirements.txt
-script:
-        - test.py
+script: "echo hello"
 before_deploy:
 - pyinstaller --distpath . -F -n 4chan_downloader test.py
 deploy:
