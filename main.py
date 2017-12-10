@@ -1,6 +1,7 @@
 import os
 import requests
-import sys, getopt
+import sys
+import getopt
 import re
 from requests import get
 from FileIndexer import FourChanHtmlParser, FileIndex
