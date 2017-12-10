@@ -12,6 +12,6 @@ deploy:
   skip_cleanup: true
   api_key:
     secure: SvCHY089S9DCtgCZkoLFII5+boTMNmxB41+YB67g5/mX1nK1K+OktXmyC2vjhgpXqV7WSwkj7K4h5PjGL8M9q9WCi1zN/y9iySmTv5uC37FdqioMJ9mRvnyEHOgjJ8MZ36VSb7m3rm2irpda5vJO7ElWqhjOjSxE9zNX6wgxFfVPtcjO3l94NPLCLz8OdMgR/BDCrdFkx5O8G0E+cUTXIuvLuZTPdh8pRNPpXFs+SUGjD2MsQyjE/RAbUPDWeFJdsEMKQYzd0D7+ysLG3uVuLe3Rz12qTPFVbrHV46gtqvJfQ/ZjlUTYHAB992IizbkvT9JUgiiundHU/inM7vefXK9wC1uUMHe34dpvGp+7m9CQM5dbrVcN7eyzMLIyF1rnWPdi5aGAb2vnwjPs3VXKHou7Hrhp0htF3sFr4Z5OeAmmCtjbof79On9lzjdQncYMDIS07HIeHk37rC3LI3dYQZJShAx0ndyCzP2Iw5PDgQjd/WvsYd6aFinekzPCJAiHAhTlI1qxrQoFhpiWo2IjBeyGR9TlT9A8VzkJE0mCoLWOJB/jqF7xkg9/p7iAx96O24mOhR2y7TdT9Vq14aE1GJUSok5XxmKSXuNvxE46rCI2jUcnDqoHpkjVh6ek6mg+Y/0wBgLMf6giOpETPhGM2KBml4a0TbXS+ez5lISkIuc=
-  file: $TRAVIS_BUILD_DIR/dist/4chan_downloader_${TRAVIS_OS_NAME}_${TRAVIS_TAG}
+  file: $TRAVIS_BUILD_DIR/4chan_downloader_${TRAVIS_OS_NAME}_${TRAVIS_TAG}
   on:
           tags: true

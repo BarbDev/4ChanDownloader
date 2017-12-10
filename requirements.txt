@@ -1,4 +1,4 @@
-request
+requests
 certifi
 chardet
 idna
