@@ -71,6 +71,7 @@ venv/
 __pycache__/
 
 imgs/
+url_list.txt
 
 # End of https://www.gitignore.io/api/pycharm
 
