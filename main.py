@@ -1,10 +1,10 @@
 import os
 import requests
 import sys
-import getopt
 import re
+import logging
 from requests import get
-from FileIndexer import FourChanHtmlParser, FileIndex
+from bs4 import BeautifulSoup
 
 
 def download(url, file_name):
@@ -17,8 +17,13 @@ def download(url, file_name):
 
 
 def sanitise_url(url):
+    """
+    Make sure the URL correspond to 4chan and makes it HTTPS
+    :param url: a string corresponding to a 4chan URL
+    :return: a string URL with HTTPS
+    """
     # https://boards.4chan.org/s/thread/17829010#p17837211
-    c = re.compile('^(https?)://boards.4chan.org/[a-z0-9]+/thread/.*$')
+    c = re.compile('^(https?)://boards.4chan(nel)?.org/[a-z0-9]+/thread/.*$')
     m = c.match(url)
     if m is not None:
         if m.group(1) == 'http':
@@ -28,35 +33,69 @@ def sanitise_url(url):
         sys.exit(3)
 
 
-def main(argv):
-    mypath = ''
-    url = ''
-    try:
-        opts, args = getopt.getopt(argv, "hl:f:", ["link=", "folder="])
-    except getopt.GetoptError:
-        print('test.py -i <inputfile> -o <outputfile>')
-        sys.exit(2)
-    for opt, arg in opts:
-        if opt == '-h':
-            sys.exit()
-        if opt == '-l' or opt == '-link':
-            url = arg
-        if opt == '-f' or opt == '-folder':
-            mypath = arg
-    if not os.path.isdir(mypath):
-        os.makedirs(mypath)
-    index = FileIndex()
-    parser = FourChanHtmlParser(index)
-    url = sanitise_url(url)
-    r = requests.get(url)
-    parser.feed(r.text)
-    print()
-    print(parser.getImageCount())
-    index.resolve_duplicate()
-
-    for cle, valeur in index.get_files().items():
-        download("http://" + cle[2:], os.path.join(mypath, valeur))
-        # print(cle, os.path.join(mypath, valeur))
+def get_urls(file_path):
+    """
+    Return a tuple of URLs from a file
+    """
+    with open(file_path) as file:
+        return (sanitise_url(url) for url in file.readlines())
 
 
-main(sys.argv[1:])
+def thread_archived(chan_thread):
+    return chan_thread.find("div", class_="closed") is not None
+
+
+def extract_medias(chan_thread):
+    """
+    Return a list of dict of all the media
+    """
+    files = chan_thread.find_all("div", class_="fileText")
+    return [
+        {
+            'url': "https:" + file.a['href'],
+            'filename': file.a.get('title', file.a.string),
+            # TODO put the size and format (get index 2 of I don't remember what, parent?)
+        } for file in files
+    ]
+
+
+def get_title(url):
+    return url[url.rfind("/", 0, len(url)-2):]
+
+
+LOGGER = logging.getLogger("4ChanDownloader")
+logging.basicConfig(level=logging.INFO)
+
+
+if __name__ == "__main__":
+    urls_filename = "url_list.txt"
+    new_urls = []
+
+    for url in get_urls(urls_filename):
+        chan_thread = BeautifulSoup(requests.get(url).text, 'html.parser')
+        thread_title = get_title(url)
+
+        if thread_archived(chan_thread):
+            LOGGER.info("Thread %s is archived, downloading..." % thread_title)
+
+            # Creating the directories to store the images
+            imgs_path = "imgs/" + thread_title
+            if not os.path.isdir(imgs_path):
+                os.makedirs(imgs_path)
+
+            # Downloading the images
+            medias = extract_medias(chan_thread)
+            total_images = len(medias)
+            for index, media in enumerate(medias, start=1):
+                LOGGER.info("Downloading media %d of %d..." %(index, total_images))
+                download(media['url'], imgs_path + "/" + media['filename'])
+
+            LOGGER.info("Thread %s downloaded." % thread_title)
+
+        else:
+            LOGGER.info("Thread %s is not archived, url kept" % thread_title)
+            new_urls.append(url)
+    
+    # Update the file with the URLs not archived
+    with open(urls_filename, "w") as file:
+        file.writelines(new_urls)
