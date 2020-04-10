@@ -95,7 +95,7 @@ if __name__ == "__main__":
         else:
             LOGGER.info("Thread %s is not archived, url kept" % thread_title)
             new_urls.append(url)
-    
+
     # Update the file with the URLs not archived
     with open(urls_filename, "w") as file:
         file.writelines(new_urls)
