@@ -5,6 +5,7 @@ import re
 import logging
 from requests import get
 from bs4 import BeautifulSoup
+from slugify import slugify
 
 
 def download(url, file_name):
@@ -59,8 +60,8 @@ def extract_medias(chan_thread):
     ]
 
 
-def get_title(url):
-    return url[url.rfind("/", 0, len(url)-2):]
+def get_title(chan_thread):
+    return slugify(chan_thread.title.string)
 
 
 LOGGER = logging.getLogger("4ChanDownloader")
@@ -73,7 +74,7 @@ if __name__ == "__main__":
 
     for url in get_urls(urls_filename):
         chan_thread = BeautifulSoup(requests.get(url).text, 'html.parser')
-        thread_title = get_title(url)
+        thread_title = get_title(chan_thread)
 
         if thread_archived(chan_thread):
             LOGGER.info("Thread %s is archived, downloading..." % thread_title)

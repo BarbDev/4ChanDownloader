@@ -6,3 +6,4 @@ idna
 urllib3
 wheel
 pyinstaller
+python-slugify
