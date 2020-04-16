@@ -4,6 +4,7 @@ import sys
 import re
 import logging
 from requests import get
+from contextlib import closing
 from bs4 import BeautifulSoup
 from slugify import slugify
 
@@ -12,9 +13,9 @@ def download(url, file_name):
     # open in binary mode
     with open(file_name, "wb") as file:
         # get request
-        response = get(url)
-        # write to file
-        file.write(response.content)
+        with closing(get(url)) as response:
+            # write to file
+            file.write(response.content)
 
 
 def sanitise_url(url):
