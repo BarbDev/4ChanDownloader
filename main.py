@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 from slugify import slugify
 
 
-def download(url, file_name):
+def download(url, file_name) -> None:
     # open in binary mode
     with open(file_name, "wb") as file:
         # get request
@@ -17,14 +17,14 @@ def download(url, file_name):
             file.write(response.content)
 
 
-def sanitise_url(url):
+def sanitise_url(url: str) -> str:
     """
     Make sure the URL correspond to 4chan and makes it HTTPS
     :param url: a string corresponding to a 4chan URL
     :return: a string URL with HTTPS
     """
     # https://boards.4chan.org/s/thread/17829010#p17837211
-    c = re.compile('^(https?)://boards.4chan(nel)?.org/[a-z0-9]+/thread/.*$')
+    c = re.compile(r'^(https?)://boards.4chan(nel)?.org/[a-z0-9]+/thread/.*$')
     m = c.match(url)
     if m is not None:
         if m.group(1) == 'http':
@@ -36,17 +36,17 @@ def sanitise_url(url):
 
 def get_urls(file_path):
     """
-    Return a tuple of URLs from a file
+    Return a generator of URLs from a file
     """
     with open(file_path) as file:
         return (sanitise_url(url) for url in file.readlines())
 
 
-def thread_archived(chan_thread):
+def thread_archived(chan_thread) -> bool:
     return chan_thread.find("div", class_="closed") is not None
 
 
-def extract_medias(chan_thread):
+def extract_medias(chan_thread) -> list:
     """
     Return a list of dict of all the media
     """
@@ -60,7 +60,7 @@ def extract_medias(chan_thread):
     ]
 
 
-def get_title(chan_thread):
+def get_title(chan_thread) -> str:
     return slugify(chan_thread.title.string)
 
 
