@@ -1,5 +1,4 @@
 import os
-import requests
 import sys
 import re
 import logging
@@ -74,29 +73,33 @@ if __name__ == "__main__":
     new_urls = []
 
     for url in get_urls(urls_filename):
-        chan_thread = BeautifulSoup(requests.get(url).text, 'html.parser')
-        thread_title = get_title(chan_thread)
+        with closing(get(url)) as response:
+            if response.status_code == 404:
+                LOGGER.error("Thread url %s is not valid anymore (404 status code), url discarded." % url.strip())
+                continue
+            chan_thread = BeautifulSoup(response.text, 'html.parser')
+            thread_title = get_title(chan_thread)
 
-        if thread_archived(chan_thread):
-            LOGGER.info("Thread %s is archived, downloading..." % thread_title)
+            if thread_archived(chan_thread):
+                LOGGER.info("Thread %s is archived, downloading..." % thread_title)
 
-            # Creating the directories to store the images
-            imgs_path = "imgs/" + thread_title
-            if not os.path.isdir(imgs_path):
-                os.makedirs(imgs_path)
+                # Creating the directories to store the images
+                imgs_path = "imgs/" + thread_title
+                if not os.path.isdir(imgs_path):
+                    os.makedirs(imgs_path)
 
-            # Downloading the images
-            medias = extract_medias(chan_thread)
-            total_images = len(medias)
-            for index, media in enumerate(medias, start=1):
-                LOGGER.info("Downloading media %d of %d..." %(index, total_images))
-                download(media['url'], imgs_path + "/" + media['filename'])
+                # Downloading the images
+                medias = extract_medias(chan_thread)
+                total_images = len(medias)
+                for index, media in enumerate(medias, start=1):
+                    LOGGER.info("Downloading media %d of %d..." %(index, total_images))
+                    download(media['url'], imgs_path + "/" + media['filename'])
 
-            LOGGER.info("Thread %s downloaded." % thread_title)
+                LOGGER.info("Thread %s downloaded." % thread_title)
 
-        else:
-            LOGGER.info("Thread %s is not archived, url kept" % thread_title)
-            new_urls.append(url)
+            else:
+                LOGGER.info("Thread %s is not archived, url kept." % thread_title)
+                new_urls.append(url)
 
     # Update the file with the URLs not archived
     with open(urls_filename, "w") as file:
